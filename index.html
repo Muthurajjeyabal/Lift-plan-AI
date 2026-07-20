@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiftPlan AI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+:root{
+  --bg:#0D1319; --panel:#151E27; --panel-2:#1B2731; --border:#28353F;
+  --text:#E7EEF3; --muted:#8494A1; --accent:#F2A900; --accent-dim:#5C471B;
+  --danger:#E05656; --danger-dim:#4A2323; --safe:#3FB27F; --safe-dim:#1E3B2E;
+  --info:#4EA1D3; --info-dim:#1E3448;
+  --display:'Oswald',sans-serif; --body:'IBM Plex Sans',sans-serif; --mono:'IBM Plex Mono',monospace;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);}
+#app{display:flex;min-height:100vh;}
+.sidebar{width:236px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;overflow-y:auto;}
+.brand{padding:0 20px 16px 20px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;}
+.brand-mark{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:0.5px;}
+.brand-mark span{color:var(--accent);}
+.brand-sub{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1.2px;margin-top:3px;text-transform:uppercase;}
+.lang-btn{background:var(--bg);border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:4px 8px;font-family:var(--mono);font-size:11px;cursor:pointer;}
+.lang-btn:focus{outline:none;border-color:var(--accent);color:var(--accent);}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent);}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 20px;cursor:pointer;border-left:3px solid transparent;color:var(--muted);}
+.nav-item .num{font-family:var(--mono);font-size:10.5px;color:var(--muted);width:18px;}
+.nav-item .label{font-family:var(--body);font-size:13px;font-weight:500;}
+.nav-item:hover{background:var(--panel-2);color:var(--text);}
+.nav-item.active{border-left:3px solid var(--accent);background:var(--panel-2);color:var(--text);}
+.nav-item.active .num{color:var(--accent);}
+.nav-sep{font-family:var(--mono);font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;padding:14px 20px 6px 20px;opacity:0.7;}
+
+.content{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{padding:16px 32px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--panel);}
+.topbar-title{font-family:var(--display);font-size:21px;font-weight:600;}
+.topbar-meta{font-family:var(--mono);font-size:12px;color:var(--muted);}
+.plan-id{color:var(--accent);}
+.view{display:none;padding:28px 32px;overflow-y:auto;}
+.view.active{display:block;}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:20px 22px;margin-bottom:18px;}
+.panel-title{font-family:var(--display);font-size:13.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--accent);margin:0 0 16px 0;padding-bottom:9px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-family:var(--mono);}
+.field input,.field select,.field textarea{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 10px;border-radius:4px;font-family:var(--body);font-size:13.5px;}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--accent);}
+.btn{background:var(--accent);color:#1A1200;border:none;padding:10px 18px;border-radius:4px;font-family:var(--body);font-weight:600;font-size:13px;cursor:pointer;}
+.btn:hover{background:#ffb81f;}
+.btn.secondary{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn.secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn.small{padding:6px 12px;font-size:12px;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;}
+.btn-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:18px;}
+.stat-box{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:16px 18px;}
+.stat-num{font-family:var(--mono);font-size:26px;color:var(--accent);}
+.stat-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;font-family:var(--mono);font-size:10px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);padding:8px 9px;letter-spacing:0.5px;}
+td{padding:9px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--panel-2);}
+.tag{padding:3px 9px;border-radius:20px;font-size:10px;font-family:var(--mono);text-transform:uppercase;}
+.tag.draft{background:var(--accent-dim);color:var(--accent);}
+.tag.approved{background:var(--safe-dim);color:var(--safe);}
+.tag.expired{background:var(--danger-dim);color:var(--danger);}
+.tag.ok{background:var(--safe-dim);color:var(--safe);}
+.empty-state{color:var(--muted);font-size:12.5px;padding:24px 0;text-align:center;font-family:var(--mono);}
+.gauge-wrap{display:flex;align-items:center;gap:32px;flex-wrap:wrap;}
+.gauge{width:160px;height:160px;border-radius:50%;position:relative;background:conic-gradient(from 180deg,var(--safe) 0deg 135deg,var(--accent) 135deg 162deg,var(--danger) 162deg 180deg,#0D1319 180deg 360deg);display:flex;align-items:center;justify-content:center;}
+.gauge::before{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:var(--panel);}
+.gauge-needle{position:absolute;bottom:50%;left:50%;width:3px;height:72px;background:var(--text);transform-origin:bottom center;transform:translateX(-50%) rotate(-90deg);transition:transform .4s ease;border-radius:2px;}
+.gauge-needle::after{content:'';position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:11px;height:11px;background:var(--text);border-radius:50%;}
+.gauge-readout{position:relative;z-index:2;text-align:center;}
+.gauge-pct{font-family:var(--mono);font-size:24px;font-weight:600;}
+.gauge-caption{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.readout-list{display:flex;flex-direction:column;gap:9px;font-family:var(--mono);font-size:12.5px;}
+.readout-list .row{display:flex;justify-content:space-between;gap:22px;min-width:210px;}
+.readout-list .row span:first-child{color:var(--muted);}
+.status-line{margin-top:14px;padding:10px 13px;border-radius:4px;font-family:var(--mono);font-size:12px;}
+.status-line.ok{background:var(--safe-dim);color:var(--safe);}
+.status-line.warn{background:var(--accent-dim);color:var(--accent);}
+.status-line.bad{background:var(--danger-dim);color:var(--danger);}
+.status-line.info{background:var(--info-dim);color:var(--info);}
+.risk-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 2fr auto;gap:10px;align-items:end;margin-bottom:12px;}
+.risk-score{font-family:var(--mono);font-weight:600;padding:8px;border-radius:4px;text-align:center;}
+.risk-low{background:var(--safe-dim);color:var(--safe);}
+.risk-med{background:var(--accent-dim);color:var(--accent);}
+.risk-high{background:var(--danger-dim);color:var(--danger);}
+.icon-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:4px;padding:7px 10px;cursor:pointer;font-size:11.5px;}
+.icon-btn:hover{border-color:var(--danger);color:var(--danger);}
+.flag{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:6px;margin-bottom:10px;border-left:4px solid var(--border);background:var(--panel-2);}
+.flag.blocking{border-left-color:var(--danger);}
+.flag.warning{border-left-color:var(--accent);}
+.flag.info{border-left-color:var(--info);}
+.flag-badge{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;padding:2px 7px;border-radius:3px;flex-shrink:0;}
+.flag.blocking .flag-badge{background:var(--danger-dim);color:var(--danger);}
+.flag.warning .flag-badge{background:var(--accent-dim);color:var(--accent);}
+.flag.info .flag-badge{background:var(--info-dim);color:var(--info);}
+.flag-text{font-size:13px;}
+.qr-box{background:#fff;padding:10px;border-radius:6px;display:inline-block;}
+.eq-row{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr auto auto;gap:10px;align-items:end;margin-bottom:12px;}
+.report-page{background:#fff;color:#111;padding:34px 38px;border-radius:4px;font-family:var(--body);max-width:780px;margin:0 auto;}
+.report-page h1{font-family:var(--display);font-size:21px;margin:0 0 4px 0;}
+.report-page h2{font-family:var(--display);font-size:13.5px;text-transform:uppercase;color:#B37400;border-bottom:1px solid #ddd;padding-bottom:6px;margin:20px 0 10px 0;}
+.report-meta{font-family:var(--mono);font-size:11.5px;color:#555;margin-bottom:16px;}
+.report-page table{font-size:12px;}
+.report-page th{color:#666;border-bottom:1px solid #ccc;}
+.report-page td{border-bottom:1px solid #eee;color:#111;}
+.chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:18px;height:230px;}
+@media print{
+  .sidebar,.topbar,.btn-row,.no-print{display:none !important;}
+  body{background:#fff;}
+  .view{display:none;}
+  .view.active{display:block;padding:0;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div><div class="brand-mark">LiftPlan <span>AI</span></div><div class="brand-sub" id="verTag">v1.2 Consolidated</div></div>
+      <select class="lang-btn" id="langSelect" onchange="setLang(this.value)">
+        <option value="en">English</option>
+        <option value="ta">தமிழ் (Tamil)</option>
+        <option value="pt">Português</option>
+        <option value="fr">Français</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+      </select>
+    </div>
+    <div class="nav-item active" data-view="dashboard"><span class="num">00</span><span class="label" data-i18n="nav.dashboard">Dashboard</span></div>
+    <div class="nav-item" data-view="newplan"><span class="num">01</span><span class="label" data-i18n="nav.newplan">New Lift Plan</span></div>
+    <div class="nav-item" data-view="crane"><span class="num">02</span><span class="label" data-i18n="nav.crane">Crane Capacity</span></div>
+    <div class="nav-item" data-view="rigging"><span class="num">03</span><span class="label" data-i18n="nav.rigging">Rigging &amp; Slings</span></div>
+    <div class="nav-item" data-view="offshore"><span class="num">04</span><span class="label" data-i18n="nav.offshore">Offshore / Ground Conditions</span></div>
+    <div class="nav-item" data-view="risk"><span class="num">05</span><span class="label" data-i18n="nav.risk">Risk / JSA / Method</span></div>
+    <div class="nav-item" data-view="checker"><span class="num">06</span><span class="label" data-i18n="nav.checker">AI Checker</span></div>
+    <div class="nav-sep">Registers</div>
+    <div class="nav-item" data-view="equipment"><span class="num">07</span><span class="label" data-i18n="nav.equipment">Equipment Register</span></div>
+    <div class="nav-item" data-view="incidents"><span class="num">08</span><span class="label" data-i18n="nav.incidents">Incident Library</span></div>
+    <div class="nav-item" data-view="report"><span class="num">09</span><span class="label" data-i18n="nav.report">Report / PDF</span></div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <div class="topbar-title" id="viewTitle">Dashboard</div>
+      <div class="topbar-meta">PLAN <span class="plan-id" id="topbarPlanId">—</span></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Lift Plans</div></div>
+        <div class="stat-box"><div class="stat-num" id="statApproved">0</div><div class="stat-label">Approved</div></div>
+        <div class="stat-box"><div class="stat-num" id="statCritical">0</div><div class="stat-label">Critical (Cat 3)</div></div>
+        <div class="stat-box"><div class="stat-num" id="statIncidents">0</div><div class="stat-label">Incidents Logged</div></div>
+        <div class="stat-box"><div class="stat-num" id="statEquipExpired">0</div><div class="stat-label">Equipment Expired</div></div>
+      </div>
+      <div class="grid">
+        <div class="chart-wrap"><canvas id="chartLifts"></canvas></div>
+        <div class="chart-wrap"><canvas id="chartUtil"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Lift Plans</div>
+        <table>
+          <thead><tr><th>Plan No.</th><th>Client</th><th>Project</th><th>Status</th><th>Utilization</th><th></th></tr></thead>
+          <tbody id="planTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display:none;">No lift plans yet — start one from "New Lift Plan".</div>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="newPlan()">+ New Lift Plan</button></div>
+    </div>
+
+    <!-- NEW PLAN -->
+    <div class="view" id="view-newplan">
+      <div class="panel">
+        <div class="panel-title">General Information</div>
+        <div class="grid">
+          <div class="field"><label>Lift Environment</label>
+            <select id="f_liftEnv" onchange="sync(); toggleEnvFields();">
+              <option value="Onshore">Onshore / Land / Shipyard</option>
+              <option value="Offshore">Offshore (Platform / Vessel)</option>
+            </select>
+          </div>
+          <div class="field"><label>Lift Plan Number</label><input id="f_planNo" oninput="sync()"></div>
+          <div class="field"><label>Client Name</label><input id="f_client" oninput="sync()"></div>
+          <div class="field"><label>Project Name</label><input id="f_project" oninput="sync()"></div>
+          <div class="field"><label>Location</label><input id="f_location" oninput="sync()"></div>
+          <div class="field"><label>Date of Lift</label><input type="date" id="f_date" oninput="sync()"></div>
+          <div class="field"><label>Prepared By</label><input id="f_preparedBy" oninput="sync()"></div>
+        </div>
+        <div class="status-line info" style="margin-top:14px;" id="envNote">Onshore selected — Section 04 will ask Ground Conditions questions instead of Offshore/Sea conditions.</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Load Details</div>
+        <div class="grid">
+          <div class="field"><label>Load Description</label><input id="f_loadDesc" oninput="sync()"></div>
+          <div class="field"><label>Load Weight (t)</label><input type="number" step="0.01" id="f_loadWeight" oninput="sync(); calcCrane(); calcSling();"></div>
+          <div class="field"><label>Dimension Unit</label>
+            <select id="f_dimUnit" onchange="calcCOG()"><option value="m">Meters (m)</option><option value="ft">Feet (ft)</option></select>
+          </div>
+          <div class="field"><label id="lblDimL">Length (m)</label><input type="number" step="0.01" id="f_dimL" oninput="sync(); calcCOG();"></div>
+          <div class="field"><label id="lblDimW">Width (m)</label><input type="number" step="0.01" id="f_dimW" oninput="sync(); calcCOG();"></div>
+          <div class="field"><label id="lblDimH">Height (m)</label><input type="number" step="0.01" id="f_dimH" oninput="sync(); calcCOG();"></div>
+          <div class="field"><label>No. of Lifting Points</label><input type="number" id="f_liftPoints" oninput="sync()"></div>
+          <div class="field"><label>Lifting Point Type</label>
+            <select id="f_liftPointType" onchange="sync()"><option>Padeye</option><option>Trunnion</option><option>Sling around</option><option>Lug</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Center of Gravity (COG) — Auto-Calculated by LiftPlan AI</div>
+        <div class="readout-list">
+          <div class="row"><span>COG X (along length)</span><span id="roCogX">—</span></div>
+          <div class="row"><span>COG Y (along width)</span><span id="roCogY">—</span></div>
+          <div class="row"><span>COG Z (height)</span><span id="roCogZ">—</span></div>
+        </div>
+        <div class="status-line info" id="cogStatus" style="margin-top:12px;">Enter Length, Width, Height above — LiftPlan AI calculates the geometric center automatically.</div>
+        <div class="grid" style="margin-top:14px;">
+          <div class="field" style="flex-direction:row;align-items:center;gap:8px;">
+            <input type="checkbox" id="f_cogManual" onchange="toggleCogManual()" style="width:auto;">
+            <label style="text-transform:none;font-family:var(--body);font-size:13px;">Irregular load — override with COG from drawing/datasheet</label>
+          </div>
+        </div>
+        <div class="grid" id="cogManualFields" style="display:none;margin-top:10px;">
+          <div class="field"><label>Manual COG X (m)</label><input type="number" step="0.01" id="f_cogXManual" oninput="calcCOG()"></div>
+          <div class="field"><label>Manual COG Y (m)</label><input type="number" step="0.01" id="f_cogYManual" oninput="calcCOG()"></div>
+          <div class="field"><label>Manual COG Z (m)</label><input type="number" step="0.01" id="f_cogZManual" oninput="calcCOG()"></div>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="switchView('crane')">Next: Crane Capacity →</button></div>
+    </div>
+
+    <!-- CRANE -->
+    <div class="view" id="view-crane">
+      <div class="panel">
+        <div class="panel-title">Crane Selection</div>
+        <div class="grid">
+          <div class="field"><label>Crane Type</label>
+            <select id="f_craneType" onchange="sync()"><option>Mobile Crane</option><option>Crawler Crane</option><option>Tower Crane</option><option>Offshore Pedestal Crane</option><option>Gantry / Overhead Crane</option></select>
+          </div>
+          <div class="field"><label>Crane Make &amp; Model</label><input id="f_craneModel" oninput="sync()"></div>
+          <div class="field"><label>Boom Length (m)</label><input type="number" step="0.1" id="f_boom" oninput="sync()"></div>
+          <div class="field"><label>Working Radius (m)</label><input type="number" step="0.1" id="f_radius" oninput="sync()"></div>
+          <div class="field"><label>Crane Capacity at Radius (t)</label><input type="number" step="0.01" id="f_craneCap" oninput="sync(); calcCrane();"></div>
+          <div class="field"><label>Rigging Weight (t)</label><input type="number" step="0.01" id="f_rigWeight" oninput="sync(); calcCrane();"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Crane Utilization Check</div>
+        <div class="gauge-wrap">
+          <div class="gauge"><div class="gauge-needle" id="gaugeNeedle"></div>
+            <div class="gauge-readout"><div class="gauge-pct" id="gaugePct">0%</div><div class="gauge-caption">Utilization</div></div>
+          </div>
+          <div class="readout-list">
+            <div class="row"><span>Load + Rigging Weight</span><span id="roTotalWeight">0.00 t</span></div>
+            <div class="row"><span>Crane Capacity at Radius</span><span id="roCap">0.00 t</span></div>
+            <div class="row"><span>Utilization %</span><span id="roPct">0%</span></div>
+            <div class="row"><span>Suggested Lift Category</span><span id="roCategory">—</span></div>
+          </div>
+        </div>
+        <div class="status-line" id="craneStatus">Enter load weight and crane capacity to calculate.</div>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="switchView('rigging')">Next: Rigging & Slings →</button></div>
+    </div>
+
+    <!-- RIGGING -->
+    <div class="view" id="view-rigging">
+      <div class="panel">
+        <div class="panel-title">Sling Angle Calculator</div>
+        <div class="grid">
+          <div class="field"><label>Number of Sling Legs</label><input type="number" id="f_legs" value="2" oninput="calcSling()"></div>
+          <div class="field"><label>Vertical Height, hook to lift point (m)</label><input type="number" step="0.01" id="f_height" oninput="calcSling()"></div>
+          <div class="field"><label>Horizontal Distance, center to lift point (m)</label><input type="number" step="0.01" id="f_horiz" oninput="calcSling()"></div>
+        </div>
+        <div class="readout-list" style="margin-top:16px;">
+          <div class="row"><span>Sling Angle (from horizontal)</span><span id="roAngle">—</span></div>
+          <div class="row"><span>Sling Length per Leg</span><span id="roSlingLen">—</span></div>
+          <div class="row"><span>Tension per Leg</span><span id="roTension">—</span></div>
+        </div>
+        <div class="status-line" id="angleStatus">Enter height and horizontal distance to calculate sling angle.</div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Sling, Shackle &amp; Master Link Selection</div>
+        <div class="grid">
+          <div class="field"><label>Sling Type</label><select id="f_slingType" onchange="sync()"><option>Wire Rope</option><option>Chain</option><option>Round Sling</option><option>Webbing Sling</option></select></div>
+          <div class="field"><label>Sling WLL (t)</label><input type="number" step="0.01" id="f_slingWLL" oninput="calcSling()"></div>
+          <div class="field"><label>Shackle Type &amp; Size</label><input id="f_shackle" oninput="sync()"></div>
+          <div class="field"><label>Shackle WLL (t)</label><input type="number" step="0.01" id="f_shackleWLL" oninput="calcSling()"></div>
+          <div class="field"><label>Master Link Type &amp; Size</label><input id="f_masterLink" oninput="sync()"></div>
+          <div class="field"><label>Master Link WLL (t)</label><input type="number" step="0.01" id="f_masterLinkWLL" oninput="calcSling()"></div>
+        </div>
+        <div class="status-line" id="wllStatus" style="margin-top:14px;">Enter WLL values to check against leg tension.</div>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="switchView('offshore')">Next: Offshore Conditions →</button></div>
+    </div>
+
+    <!-- OFFSHORE / GROUND CONDITIONS (content shown depends on Onshore vs Offshore selection) -->
+    <div class="view" id="view-offshore">
+      <div id="offshoreFields">
+      <div class="panel">
+        <div class="panel-title">Offshore / Marine Conditions</div>
+        <div class="grid">
+          <div class="field"><label>Sea State (Douglas Scale)</label>
+            <select id="f_seaState" onchange="sync(); calcOffshore();">
+              <option value="0">0 – Calm</option><option value="1">1 – Smooth</option><option value="2">2 – Slight</option>
+              <option value="3">3 – Moderate</option><option value="4">4 – Rough</option><option value="5">5 – Very Rough</option>
+            </select>
+          </div>
+          <div class="field"><label>Significant Wave Height (m)</label><input type="number" step="0.1" id="f_waveHeight" oninput="sync(); calcOffshore();"></div>
+          <div class="field"><label>Wave Period (s)</label><input type="number" step="0.1" id="f_wavePeriod" oninput="sync()"></div>
+          <div class="field"><label>Current Speed (kn)</label><input type="number" step="0.1" id="f_currentSpeed" oninput="sync()"></div>
+          <div class="field"><label>Wind Speed (kn)</label><input type="number" step="0.1" id="f_windSpeed" oninput="sync(); calcOffshore();"></div>
+          <div class="field"><label>Crane / Vessel Wind Limit (kn)</label><input type="number" step="0.1" id="f_windLimit" oninput="sync(); calcOffshore();"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Dynamic Amplification Factor (DAF) &amp; Weather Window</div>
+        <div class="readout-list">
+          <div class="row"><span>Suggested DAF (conservative default)</span><span id="roDAF">—</span></div>
+          <div class="row"><span>Wind vs. Operating Limit</span><span id="roWind">—</span></div>
+        </div>
+        <div class="status-line info" style="margin-top:12px;">
+          DAF here is a conservative placeholder based on sea state — not a substitute for a DNV-RP-H103 engineering calculation. Confirm against your company's approved offshore lift procedure before a critical lift.
+        </div>
+        <div class="status-line" id="weatherStatus" style="margin-top:10px;">Enter wind speed and limit to get a GO / NO-GO / MARGINAL read.</div>
+      </div>
+      </div>
+
+      <div id="onshoreFields">
+      <div class="panel">
+        <div class="panel-title">Ground Conditions &amp; Site Access</div>
+        <div class="grid">
+          <div class="field"><label>Ground Bearing Capacity Confirmed?</label>
+            <select id="f_groundBearingOk" onchange="sync(); calcOnshoreCheck();"><option value="">Select</option><option>Yes</option><option>No</option></select>
+          </div>
+          <div class="field"><label>Underground Utilities Checked?</label>
+            <select id="f_undergroundChecked" onchange="sync(); calcOnshoreCheck();"><option value="">Select</option><option>Yes</option><option>No / Not Applicable</option></select>
+          </div>
+          <div class="field"><label>Access Route Condition</label>
+            <select id="f_accessRoute" onchange="sync()"><option>Good — cleared &amp; compacted</option><option>Fair — needs matting/prep</option><option>Poor — significant work needed</option></select>
+          </div>
+          <div class="field"><label>Overhead Power Lines Nearby?</label>
+            <select id="f_overheadLines" onchange="sync(); calcOnshoreCheck();"><option value="">Select</option><option>No</option><option>Yes</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Weather (Onshore/Shipyard)</div>
+        <div class="grid">
+          <div class="field"><label>Wind Speed (kn)</label><input type="number" step="0.1" id="f_windSpeedOn" oninput="sync()"></div>
+          <div class="field"><label>Site Wind Limit (kn)</label><input type="number" step="0.1" id="f_windLimitOn" oninput="sync()"></div>
+        </div>
+        <div class="status-line" id="onshoreStatus" style="margin-top:12px;">Confirm ground conditions and access above.</div>
+      </div>
+      </div>
+
+      <div class="btn-row"><button class="btn" onclick="switchView('risk')">Next: Risk Assessment →</button></div>
+    </div>
+
+    <!-- RISK -->
+    <div class="view" id="view-risk">
+      <div class="panel">
+        <div class="panel-title">Risk Assessment</div>
+        <div id="riskRows"></div>
+        <button class="btn secondary" onclick="addRiskRow()">+ Add Hazard</button>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Method Statement Summary</div>
+        <div class="field"><label>Sequence of Operations</label>
+          <textarea id="f_methodStatement" rows="5" placeholder="1. Pre-lift check & TBT. 2. Position crane & rig load. 3. Test lift 300mm. 4. Lift, slew, land. 5. De-rig." oninput="sync()"></textarea>
+        </div>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="switchView('checker')">Next: Run AI Checker →</button></div>
+    </div>
+
+    <!-- AI CHECKER -->
+    <div class="view" id="view-checker">
+      <div class="panel">
+        <div class="panel-title">Lift Plan AI Checker <button class="btn small" onclick="runChecker()">↻ Re-run Check</button></div>
+        <div id="checkerFlags"></div>
+        <div class="status-line" id="checkerSummary" style="margin-top:10px;">Run the checker to scan this lift plan.</div>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="switchView('equipment')">Next: Equipment Register →</button></div>
+    </div>
+
+    <!-- EQUIPMENT -->
+    <div class="view" id="view-equipment">
+      <div class="panel">
+        <div class="panel-title">Rigging Equipment Register</div>
+        <div id="eqRows"></div>
+        <button class="btn secondary" onclick="addEqRow()">+ Add Equipment</button>
+      </div>
+      <div class="panel">
+        <div class="panel-title">QR Code Lookup</div>
+        <div class="grid" style="align-items:end;">
+          <div class="field"><label>Select Equipment</label>
+            <select id="qrSelect" onchange="renderQR()"></select>
+          </div>
+        </div>
+        <div id="qrOutput" style="margin-top:16px;"></div>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="switchView('incidents')">Next: Incident Library →</button></div>
+    </div>
+
+    <!-- INCIDENTS -->
+    <div class="view" id="view-incidents">
+      <div class="panel">
+        <div class="panel-title">Lifting Incident &amp; Near-Miss Library</div>
+        <div id="incRows"></div>
+        <button class="btn secondary" onclick="addIncRow()">+ Log Incident / Near Miss</button>
+      </div>
+      <div class="btn-row"><button class="btn" onclick="switchView('report')">Next: Generate Report →</button></div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="view" id="view-report">
+      <div class="btn-row no-print">
+        <button class="btn" onclick="saveCurrentPlan()">💾 Save Lift Plan</button>
+        <button class="btn secondary" id="exportBtn" onclick="window.print()">🖨️ Export PDF (Print)</button>
+      </div>
+      <div class="status-line bad no-print" id="exportBlockNotice" style="display:none;">Export blocked — resolve Blocking flags in the AI Checker (Section 06) first, or record an override there.</div>
+      <div class="report-page" id="reportPage"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+let plan = {
+  id:null, planNo:'', client:'', project:'', location:'', date:'', preparedBy:'',
+  liftEnv:'Onshore',
+  loadDesc:'', loadWeight:0, dimL:0, dimW:0, dimH:0,
+  cogManual:false, cogXManual:0, cogYManual:0, cogZManual:0, cogX:0, cogY:0, cogZ:0,
+  liftPoints:'', liftPointType:'Padeye',
+  craneType:'Mobile Crane', craneModel:'', boom:0, radius:0, craneCap:0, rigWeight:0,
+  legs:2, height:0, horiz:0, slingType:'Wire Rope', slingWLL:0,
+  shackle:'', shackleWLL:0, masterLink:'', masterLinkWLL:0,
+  seaState:'0', waveHeight:0, wavePeriod:0, currentSpeed:0, windSpeed:0, windLimit:0,
+  groundBearingOk:'', undergroundChecked:'', accessRoute:'Good — cleared & compacted', overheadLines:'', windSpeedOn:0, windLimitOn:0,
+  risks:[], methodStatement:'', status:'draft', utilization:0,
+  checkerOverride:false, checkerOverrideReason:''
+};
+let equipment = [];
+let incidents = [];
+
+const ids = ['planNo','client','project','location','date','preparedBy','liftEnv','loadDesc','loadWeight','dimL','dimW','dimH',
+  'liftPoints','liftPointType','craneType','craneModel','boom','radius','craneCap','rigWeight',
+  'legs','height','horiz','slingType','slingWLL','shackle','shackleWLL','masterLink','masterLinkWLL',
+  'seaState','waveHeight','wavePeriod','currentSpeed','windSpeed','windLimit',
+  'groundBearingOk','undergroundChecked','accessRoute','overheadLines','windSpeedOn','windLimitOn','methodStatement'];
+
+function sync(){
+  ids.forEach(k=>{
+    const el = document.getElementById('f_'+k);
+    if(!el) return;
+    plan[k] = el.type === 'number' ? (parseFloat(el.value)||0) : el.value;
+  });
+  document.getElementById('topbarPlanId').textContent = plan.planNo || '—';
+}
+
+function switchView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelector('.nav-item[data-view="'+name+'"]').classList.add('active');
+  const titles = {dashboard:'Dashboard',newplan:'New Lift Plan',crane:'Crane Capacity',rigging:'Rigging & Slings',
+    offshore:'Offshore Conditions',risk:'Risk / JSA / Method',checker:'AI Checker',equipment:'Equipment Register',
+    incidents:'Incident Library',report:'Report / PDF'};
+  document.getElementById('viewTitle').textContent = titles[name];
+  if(name==='dashboard') renderDashboard();
+  if(name==='equipment') renderEqRows();
+  if(name==='incidents') renderIncRows();
+  if(name==='checker') runChecker();
+  if(name==='report') renderReport();
+}
+document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>switchView(n.dataset.view)));
+
+function newPlan(){
+  plan = {id:null, planNo:'LP-'+Date.now().toString().slice(-6), client:'', project:'', location:'', date:'', preparedBy:'',
+    liftEnv:'Onshore',
+    loadDesc:'', loadWeight:0, dimL:0, dimW:0, dimH:0,
+    cogManual:false, cogXManual:0, cogYManual:0, cogZManual:0, cogX:0, cogY:0, cogZ:0,
+    liftPoints:'', liftPointType:'Padeye',
+    craneType:'Mobile Crane', craneModel:'', boom:0, radius:0, craneCap:0, rigWeight:0,
+    legs:2, height:0, horiz:0, slingType:'Wire Rope', slingWLL:0,
+    shackle:'', shackleWLL:0, masterLink:'', masterLinkWLL:0,
+    seaState:'0', waveHeight:0, wavePeriod:0, currentSpeed:0, windSpeed:0, windLimit:0,
+    groundBearingOk:'', undergroundChecked:'', accessRoute:'Good — cleared & compacted', overheadLines:'', windSpeedOn:0, windLimitOn:0,
+    risks:[], methodStatement:'', status:'draft', utilization:0, checkerOverride:false, checkerOverrideReason:''};
+  loadFormFromPlan();
+  switchView('newplan');
+}
+
+function loadFormFromPlan(){
+  ids.forEach(k=>{ const el = document.getElementById('f_'+k); if(el) el.value = plan[k] ?? ''; });
+  document.getElementById('topbarPlanId').textContent = plan.planNo || '—';
+  document.getElementById('f_cogManual').checked = !!plan.cogManual;
+  document.getElementById('cogManualFields').style.display = plan.cogManual ? 'grid' : 'none';
+  document.getElementById('f_cogXManual').value = plan.cogXManual || 0;
+  document.getElementById('f_cogYManual').value = plan.cogYManual || 0;
+  document.getElementById('f_cogZManual').value = plan.cogZManual || 0;
+  const unit = plan.dimUnit || 'm';
+  document.getElementById('f_dimUnit').value = unit;
+  const backFactor = unit === 'ft' ? (1/0.3048) : 1;
+  document.getElementById('f_dimL').value = ((plan.dimL||0) * backFactor).toFixed(2);
+  document.getElementById('f_dimW').value = ((plan.dimW||0) * backFactor).toFixed(2);
+  document.getElementById('f_dimH').value = ((plan.dimH||0) * backFactor).toFixed(2);
+  renderRiskRows(); calcCrane(); calcSling(); calcOffshore(); calcCOG(); toggleEnvFields();
+}
+
+/* ---- Crane Utilization ---- */
+function calcCrane(){
+  const total = (plan.loadWeight||0) + (plan.rigWeight||0);
+  const cap = plan.craneCap||0;
+  const pct = cap>0 ? Math.min((total/cap)*100, 200) : 0;
+  plan.utilization = pct;
+  document.getElementById('roTotalWeight').textContent = total.toFixed(2)+' t';
+  document.getElementById('roCap').textContent = cap.toFixed(2)+' t';
+  document.getElementById('roPct').textContent = pct.toFixed(1)+'%';
+  document.getElementById('gaugePct').textContent = Math.min(pct,100).toFixed(0)+'%';
+  const angle = -90 + Math.min(pct,100)/100*180;
+  document.getElementById('gaugeNeedle').style.transform = 'translateX(-50%) rotate('+angle+'deg)';
+  let cat='Category 1 (Routine)', statusClass='ok', statusText='Within safe working limit.';
+  if(cap===0){ statusText='Enter crane capacity at radius to evaluate.'; statusClass='warn'; cat='—'; }
+  else if(pct<75){ cat='Category 1 (Routine)'; statusClass='ok'; statusText='Utilization under 75% — routine lift.'; }
+  else if(pct<90){ cat='Category 2 (Standard – AP review)'; statusClass='warn'; statusText='75–90% utilization — requires Appointed Person review.'; }
+  else if(pct<=100){ cat='Category 3 (Critical lift)'; statusClass='bad'; statusText='Over 90% utilization — critical lift, full engineering review required.'; }
+  else { cat='EXCEEDS CAPACITY'; statusClass='bad'; statusText='Load exceeds crane rated capacity at this radius. Do not lift.'; }
+  plan.category = cat;
+  document.getElementById('roCategory').textContent = cat;
+  const s = document.getElementById('craneStatus'); s.className='status-line '+statusClass; s.textContent=statusText;
+}
+
+/* ---- Sling Angle ---- */
+function calcSling(){
+  plan.legs = parseFloat(document.getElementById('f_legs').value)||2;
+  plan.height = parseFloat(document.getElementById('f_height').value)||0;
+  plan.horiz = parseFloat(document.getElementById('f_horiz').value)||0;
+  plan.slingWLL = parseFloat(document.getElementById('f_slingWLL').value)||0;
+  plan.shackleWLL = parseFloat(document.getElementById('f_shackleWLL').value)||0;
+  plan.masterLinkWLL = parseFloat(document.getElementById('f_masterLinkWLL').value)||0;
+  const h=plan.height, d=plan.horiz;
+  const angleStatus = document.getElementById('angleStatus');
+  if(h>0 && d>=0){
+    const angleRad = Math.atan2(h,d), angleDeg = angleRad*180/Math.PI;
+    const slingLen = Math.sqrt(h*h+d*d);
+    const tensionPerLeg = plan.legs>0 ? ((plan.loadWeight||0)/plan.legs)/Math.sin(angleRad) : 0;
+    document.getElementById('roAngle').textContent = angleDeg.toFixed(1)+'°';
+    document.getElementById('roSlingLen').textContent = slingLen.toFixed(2)+' m';
+    document.getElementById('roTension').textContent = tensionPerLeg.toFixed(2)+' t';
+    plan.angleDeg = angleDeg; plan._tensionPerLeg = tensionPerLeg;
+    if(angleDeg<45){ angleStatus.className='status-line bad'; angleStatus.textContent='Angle below 45° — leg tension significantly increased.'; }
+    else { angleStatus.className='status-line ok'; angleStatus.textContent='Sling angle acceptable (≥45° from horizontal).'; }
+    const wllStatus = document.getElementById('wllStatus');
+    const wllVals=[{name:'Sling',val:plan.slingWLL},{name:'Shackle',val:plan.shackleWLL},{name:'Master Link',val:plan.masterLinkWLL}].filter(x=>x.val>0);
+    if(wllVals.length){
+      const fails = wllVals.filter(x=>x.val<tensionPerLeg);
+      plan._wllFail = fails.length>0;
+      if(fails.length){ wllStatus.className='status-line bad'; wllStatus.textContent='FAIL: '+fails.map(f=>f.name).join(', ')+' WLL below required leg tension ('+tensionPerLeg.toFixed(2)+' t).'; }
+      else { wllStatus.className='status-line ok'; wllStatus.textContent='PASS: All selected rigging WLL exceeds required leg tension ('+tensionPerLeg.toFixed(2)+' t).'; }
+    }
+  } else { document.getElementById('roAngle').textContent='—'; document.getElementById('roSlingLen').textContent='—'; document.getElementById('roTension').textContent='—'; }
+}
+
+/* ---- Center of Gravity (auto) ---- */
+function toggleCogManual(){
+  plan.cogManual = document.getElementById('f_cogManual').checked;
+  document.getElementById('cogManualFields').style.display = plan.cogManual ? 'grid' : 'none';
+  calcCOG();
+}
+function calcCOG(){
+  const unit = document.getElementById('f_dimUnit').value;
+  plan.dimUnit = unit;
+  const factor = unit === 'ft' ? 0.3048 : 1; // convert entered value to meters
+  const rawL = parseFloat(document.getElementById('f_dimL').value)||0;
+  const rawW = parseFloat(document.getElementById('f_dimW').value)||0;
+  const rawH = parseFloat(document.getElementById('f_dimH').value)||0;
+  plan.dimL = rawL * factor; plan.dimW = rawW * factor; plan.dimH = rawH * factor; // always stored in meters
+
+  const unitLabel = unit === 'ft' ? 'ft' : 'm';
+  document.getElementById('lblDimL').textContent = 'Length ('+unitLabel+')';
+  document.getElementById('lblDimW').textContent = 'Width ('+unitLabel+')';
+  document.getElementById('lblDimH').textContent = 'Height ('+unitLabel+')';
+
+  const status = document.getElementById('cogStatus');
+  if(plan.cogManual){
+    plan.cogX = parseFloat(document.getElementById('f_cogXManual').value)||0;
+    plan.cogY = parseFloat(document.getElementById('f_cogYManual').value)||0;
+    plan.cogZ = parseFloat(document.getElementById('f_cogZManual').value)||0;
+    status.className='status-line warn';
+    status.textContent='Manual override active — using COG entered from drawing/datasheet, not app-calculated.';
+  } else if(plan.dimL>0 && plan.dimW>0 && plan.dimH>0){
+    plan.cogX = plan.dimL/2; plan.cogY = plan.dimW/2; plan.cogZ = plan.dimH/2; // always meters internally
+    status.className='status-line ok';
+    status.textContent='LiftPlan AI calculated this as the geometric center. For loads with uneven internal weight distribution (e.g. skid with heavy equipment on one side), tick "Irregular load" below and enter the true COG.';
+  } else {
+    plan.cogX=0; plan.cogY=0; plan.cogZ=0;
+    status.className='status-line info';
+    status.textContent='Enter Length, Width, Height above — LiftPlan AI calculates the geometric center automatically.';
+  }
+  // Display in the currently selected unit for readability, always keep plan.cogX/Y/Z in meters as system of record
+  const dispFactor = plan.cogManual ? 1 : (unit==='ft' ? (1/0.3048) : 1);
+  const dispUnit = plan.cogManual ? 'm' : unitLabel;
+  document.getElementById('roCogX').textContent = (plan.dimL>0||plan.cogManual) ? (plan.cogX*dispFactor).toFixed(2)+' '+dispUnit : '—';
+  document.getElementById('roCogY').textContent = (plan.dimW>0||plan.cogManual) ? (plan.cogY*dispFactor).toFixed(2)+' '+dispUnit : '—';
+  document.getElementById('roCogZ').textContent = (plan.dimH>0||plan.cogManual) ? (plan.cogZ*dispFactor).toFixed(2)+' '+dispUnit : '—';
+}
+
+/* ---- Onshore vs Offshore question branching ---- */
+function toggleEnvFields(){
+  const env = document.getElementById('f_liftEnv').value;
+  plan.liftEnv = env;
+  const off = document.getElementById('offshoreFields');
+  const on = document.getElementById('onshoreFields');
+  const note = document.getElementById('envNote');
+  if(env === 'Offshore'){
+    off.style.display = 'block';
+    on.style.display = 'none';
+    note.className = 'status-line info';
+    note.textContent = 'Offshore selected — Section 04 will ask Sea State, Wave Height, Wind, and DAF/Weather Window questions.';
+  } else {
+    off.style.display = 'none';
+    on.style.display = 'block';
+    note.className = 'status-line info';
+    note.textContent = 'Onshore selected — Section 04 will ask Ground Conditions, Underground Utilities, Access Route and Overhead Power Line questions instead.';
+  }
+}
+function calcOnshoreCheck(){
+  plan.groundBearingOk = document.getElementById('f_groundBearingOk').value;
+  plan.undergroundChecked = document.getElementById('f_undergroundChecked').value;
+  plan.overheadLines = document.getElementById('f_overheadLines').value;
+  const s = document.getElementById('onshoreStatus');
+  const issues = [];
+  if(plan.groundBearingOk === 'No') issues.push('Ground bearing capacity NOT confirmed — do not position crane until checked.');
+  if(plan.undergroundChecked === 'No / Not Applicable' && plan.undergroundChecked !== '') issues.push('Underground utilities not checked/cleared.');
+  if(plan.overheadLines === 'Yes') issues.push('Overhead power lines nearby — maintain safe approach distance, treat as a Complex-lift trigger.');
+  if(issues.length){ s.className='status-line bad'; s.textContent = issues.join(' '); }
+  else { s.className='status-line ok'; s.textContent = 'Ground conditions look clear so far.'; }
+}
+
+/* ---- Offshore ---- */
+function calcOffshore(){
+  plan.seaState = document.getElementById('f_seaState').value;
+  plan.waveHeight = parseFloat(document.getElementById('f_waveHeight').value)||0;
+  plan.windSpeed = parseFloat(document.getElementById('f_windSpeed').value)||0;
+  plan.windLimit = parseFloat(document.getElementById('f_windLimit').value)||0;
+  const daf = 1.05 + (parseInt(plan.seaState)||0)*0.03 + Math.min(plan.waveHeight,3)*0.02;
+  document.getElementById('roDAF').textContent = daf.toFixed(2)+' (indicative)';
+  const ws = document.getElementById('roWind');
+  const weatherStatus = document.getElementById('weatherStatus');
+  if(plan.windLimit>0){
+    ws.textContent = plan.windSpeed.toFixed(1)+' kn / limit '+plan.windLimit.toFixed(1)+' kn';
+    if(plan.windSpeed > plan.windLimit){ weatherStatus.className='status-line bad'; weatherStatus.textContent='NO-GO — wind speed exceeds crane/vessel operating limit.'; plan._weatherNoGo=true; }
+    else if(plan.windSpeed > plan.windLimit*0.85){ weatherStatus.className='status-line warn'; weatherStatus.textContent='MARGINAL — wind within 15% of limit. Monitor forecast closely.'; plan._weatherNoGo=false; }
+    else { weatherStatus.className='status-line ok'; weatherStatus.textContent='GO — wind speed within operating limit.'; plan._weatherNoGo=false; }
+  } else { ws.textContent='—'; }
+}
+
+/* ---- Risk Assessment ---- */
+function addRiskRow(hazard='',likelihood=3,severity=3,control=''){ plan.risks.push({hazard,likelihood,severity,control}); renderRiskRows(); }
+function removeRiskRow(i){ plan.risks.splice(i,1); renderRiskRows(); }
+function updateRisk(i,field,val){ plan.risks[i][field] = (field==='likelihood'||field==='severity') ? parseInt(val) : val; renderRiskRows(); }
+function riskClass(score){ if(score<=6) return 'risk-low'; if(score<=14) return 'risk-med'; return 'risk-high'; }
+function renderRiskRows(){
+  const wrap = document.getElementById('riskRows'); wrap.innerHTML='';
+  plan.risks.forEach((r,i)=>{
+    const score = r.likelihood*r.severity;
+    const row = document.createElement('div'); row.className='risk-row';
+    row.innerHTML = `
+      <div class="field"><label>Hazard</label><input value="${r.hazard}" oninput="updateRisk(${i},'hazard',this.value)"></div>
+      <div class="field"><label>Likelihood (1-5)</label><input type="number" min="1" max="5" value="${r.likelihood}" oninput="updateRisk(${i},'likelihood',this.value)"></div>
+      <div class="field"><label>Severity (1-5)</label><input type="number" min="1" max="5" value="${r.severity}" oninput="updateRisk(${i},'severity',this.value)"></div>
+      <div class="field"><label>Risk Score</label><div class="risk-score ${riskClass(score)}">${score}</div></div>
+      <div class="field"><label>Control Measure</label><input value="${r.control}" oninput="updateRisk(${i},'control',this.value)"></div>
+      <button class="icon-btn" onclick="removeRiskRow(${i})">✕</button>`;
+    wrap.appendChild(row);
+  });
+  if(plan.risks.length===0) addRiskRow('Dropped object',3,4,'Exclusion zone, tag lines, inspect rigging before lift');
+}
+
+/* ---- AI Checker ---- */
+function runChecker(){
+  sync();
+  const flags = [];
+  if(!plan.cogManual && (plan.dimL<=0 || plan.dimW<=0 || plan.dimH<=0)) flags.push({sev:'warning', text:'COG not available — enter Length/Width/Height so LiftPlan AI can calculate it, or switch to manual override for an irregular load.'});
+  if(plan.angleDeg!==undefined && plan.angleDeg < 45) flags.push({sev:'blocking', text:'Sling angle is '+plan.angleDeg.toFixed(1)+'° — below the 45° minimum.'});
+  if(plan._wllFail) flags.push({sev:'blocking', text:'One or more rigging components (sling/shackle/master link) have WLL below the required leg tension.'});
+  if(plan.utilization > 85) flags.push({sev: plan.utilization>100 ? 'blocking':'warning', text:'Crane utilization is '+plan.utilization.toFixed(1)+'% — '+(plan.utilization>100?'exceeds rated capacity.':'above 85%, confirm Category 3 justification.')});
+  if(plan.liftEnv === 'Offshore' && plan._weatherNoGo) flags.push({sev:'blocking', text:'Wind speed exceeds the crane/vessel operating limit (Offshore Conditions).'});
+  if(plan.liftEnv === 'Onshore'){
+    if(plan.groundBearingOk === 'No') flags.push({sev:'blocking', text:'Ground bearing capacity not confirmed — crane positioning is not safe to proceed.'});
+    if(plan.undergroundChecked === 'No / Not Applicable') flags.push({sev:'warning', text:'Underground utilities not confirmed checked.'});
+    if(plan.overheadLines === 'Yes') flags.push({sev:'warning', text:'Overhead power lines flagged nearby — confirm safe approach distance and consider Complex-lift classification.'});
+  }
+  if(!plan.preparedBy) flags.push({sev:'warning', text:'"Prepared By" signatory not entered — required before sign-off.'});
+  const expired = equipment.filter(e=>e.certExpiry && new Date(e.certExpiry) < new Date());
+  if(expired.length) flags.push({sev:'blocking', text: expired.length+' equipment item(s) in the Register have an expired certificate.'});
+  const highUnresolved = plan.risks.filter(r=>r.likelihood*r.severity>=15 && !r.control);
+  if(highUnresolved.length) flags.push({sev:'blocking', text: highUnresolved.length+' High risk score item(s) in Risk Assessment have no control measure entered.'});
+
+  plan._flags = flags;
+  const wrap = document.getElementById('checkerFlags'); wrap.innerHTML='';
+  flags.forEach(f=>{
+    const div = document.createElement('div'); div.className='flag '+f.sev;
+    div.innerHTML = `<span class="flag-badge">${f.sev}</span><span class="flag-text">${f.text}</span>`;
+    wrap.appendChild(div);
+  });
+  const blocking = flags.filter(f=>f.sev==='blocking').length;
+  const summary = document.getElementById('checkerSummary');
+  if(flags.length===0){ summary.className='status-line ok'; summary.textContent='No issues found. This plan is ready for approval.'; }
+  else if(blocking>0){ summary.className='status-line bad'; summary.textContent = blocking+' Blocking issue(s) found — PDF export is disabled until resolved (or overridden with justification below).'; }
+  else { summary.className='status-line warn'; summary.textContent = flags.length+' Warning(s) found — review before approval.'; }
+
+  if(blocking>0 && !document.getElementById('overrideBox')){
+    const ob = document.createElement('div'); ob.id='overrideBox'; ob.style.marginTop='14px';
+    ob.innerHTML = `<div class="field"><label>Override Justification (Appointed Person only)</label>
+      <textarea id="f_overrideReason" rows="2" oninput="plan.checkerOverrideReason=this.value"></textarea></div>
+      <button class="btn secondary small" style="margin-top:8px;" onclick="plan.checkerOverride=true; document.getElementById('exportBlockNotice').style.display='none'; alert('Override recorded. This will be logged in the PDF audit appendix.');">Record Override &amp; Unblock Export</button>`;
+    wrap.appendChild(ob);
+  }
+  document.getElementById('exportBlockNotice').style.display = (blocking>0 && !plan.checkerOverride) ? 'block':'none';
+  document.getElementById('exportBtn').disabled = (blocking>0 && !plan.checkerOverride);
+}
+
+/* ---- Equipment Register ---- */
+function addEqRow(name='',type='Sling',wll=0,certExpiry=''){ equipment.push({id:'EQ-'+Date.now()+'-'+equipment.length, name,type,wll,certExpiry}); renderEqRows(); }
+function removeEqRow(i){ equipment.splice(i,1); renderEqRows(); }
+function updateEq(i,field,val){ equipment[i][field] = field==='wll' ? parseFloat(val)||0 : val; renderEqRows(); }
+function renderEqRows(){
+  const wrap = document.getElementById('eqRows'); wrap.innerHTML='';
+  equipment.forEach((e,i)=>{
+    const expired = e.certExpiry && new Date(e.certExpiry) < new Date();
+    const row = document.createElement('div'); row.className='eq-row';
+    row.innerHTML = `
+      <div class="field"><label>Name / ID</label><input value="${e.name}" oninput="updateEq(${i},'name',this.value)"></div>
+      <div class="field"><label>Type</label>
+        <select onchange="updateEq(${i},'type',this.value)">
+          ${['Sling','Shackle','Master Link','Chain Block','Beam Clamp'].map(t=>`<option ${e.type===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>WLL (t)</label><input type="number" step="0.01" value="${e.wll}" oninput="updateEq(${i},'wll',this.value)"></div>
+      <div class="field"><label>Cert Expiry</label><input type="date" value="${e.certExpiry}" oninput="updateEq(${i},'certExpiry',this.value)"></div>
+      <div class="field"><label>Status</label><span class="tag ${expired?'expired':'ok'}">${expired?'Expired':'Valid'}</span></div>
+      <button class="icon-btn" onclick="removeEqRow(${i})">✕</button>`;
+    wrap.appendChild(row);
+  });
+  if(equipment.length===0) addEqRow('SL-001 Wire Rope Sling','Sling',5,'');
+  const sel = document.getElementById('qrSelect');
+  if(sel){ sel.innerHTML = equipment.map((e,i)=>`<option value="${i}">${e.name||'(unnamed)'}</option>`).join(''); renderQR(); }
+}
+function renderQR(){
+  const sel = document.getElementById('qrSelect'); if(!sel || equipment.length===0) return;
+  const e = equipment[sel.value]; if(!e) return;
+  const out = document.getElementById('qrOutput'); out.innerHTML='';
+  const box = document.createElement('div'); box.className='qr-box'; box.id='qrCanvas'; out.appendChild(box);
+  const payload = JSON.stringify({id:e.id,name:e.name,type:e.type,wll:e.wll,certExpiry:e.certExpiry});
+  try{
+    if(window.QRCode){ new QRCode(box, {text: payload, width:120, height:120}); }
+    else { box.textContent = payload; }
+  }catch(err){ box.textContent = payload; }
+  const info = document.createElement('div'); info.style.marginTop='8px'; info.style.fontFamily='var(--mono)'; info.style.fontSize='12px'; info.style.color='var(--muted)';
+  info.textContent = 'Scan → shows WLL '+e.wll+'t, cert expiry '+(e.certExpiry||'not set')+'.';
+  out.appendChild(info);
+}
+
+/* ---- Incident Library ---- */
+function addIncRow(type='Near Miss',description='',date=''){ incidents.push({type,description,date}); renderIncRows(); }
+function removeIncRow(i){ incidents.splice(i,1); renderIncRows(); }
+function updateInc(i,field,val){ incidents[i][field]=val; }
+function renderIncRows(){
+  const wrap = document.getElementById('incRows'); wrap.innerHTML='';
+  incidents.forEach((inc,i)=>{
+    const row = document.createElement('div'); row.className='eq-row'; row.style.gridTemplateColumns='1fr 2fr 1fr auto';
+    row.innerHTML = `
+      <div class="field"><label>Type</label>
+        <select onchange="updateInc(${i},'type',this.value)">
+          ${['Near Miss','Dropped Object','Crane Overturn','Side Loading','Shock Loading'].map(t=>`<option ${inc.type===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Description</label><input value="${inc.description}" oninput="updateInc(${i},'description',this.value)"></div>
+      <div class="field"><label>Date</label><input type="date" value="${inc.date}" oninput="updateInc(${i},'date',this.value)"></div>
+      <button class="icon-btn" onclick="removeIncRow(${i})">✕</button>`;
+    wrap.appendChild(row);
+  });
+  if(incidents.length===0) document.getElementById('incRows').innerHTML = '<div class="empty-state">No incidents logged. Good record — keep it that way.</div>';
+}
+
+/* ---- Storage / Dashboard ---- */
+async function saveCurrentPlan(){
+  sync();
+  if(!plan.id) plan.id = 'plan_'+Date.now();
+  plan.status = plan.status || 'draft';
+  try{
+    await window.storage.set('liftplans:'+plan.id, JSON.stringify(plan));
+    await window.storage.set('equipment', JSON.stringify(equipment));
+    await window.storage.set('incidents', JSON.stringify(incidents));
+    alert('Lift Plan '+plan.planNo+' saved.');
+  }catch(e){ console.error(e); alert('Could not save plan (storage error).'); }
+}
+
+async function loadRegisters(){
+  try{ const r = await window.storage.get('equipment'); if(r) equipment = JSON.parse(r.value); }catch(e){}
+  try{ const r = await window.storage.get('incidents'); if(r) incidents = JSON.parse(r.value); }catch(e){}
+}
+
+async function renderDashboard(){
+  await loadRegisters();
+  const tbody = document.getElementById('planTableBody'); tbody.innerHTML='';
+  let list = [];
+  try{
+    const keys = await window.storage.list('liftplans:');
+    if(keys && keys.keys){ for(const k of keys.keys){ try{ const res = await window.storage.get(k); if(res) list.push(JSON.parse(res.value)); }catch(e){} } }
+  }catch(e){ console.log('No plans yet.'); }
+
+  document.getElementById('statTotal').textContent = list.length;
+  document.getElementById('statApproved').textContent = list.filter(p=>p.status==='approved').length;
+  document.getElementById('statCritical').textContent = list.filter(p=>(p.category||'').includes('Category 3')).length;
+  document.getElementById('statIncidents').textContent = incidents.length;
+  document.getElementById('statEquipExpired').textContent = equipment.filter(e=>e.certExpiry && new Date(e.certExpiry)<new Date()).length;
+  document.getElementById('emptyState').style.display = list.length ? 'none':'block';
+
+  list.forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td style="font-family:var(--mono)">${p.planNo||'—'}</td><td>${p.client||'—'}</td><td>${p.project||'—'}</td>
+      <td><span class="tag ${p.status==='approved'?'approved':'draft'}">${p.status||'draft'}</span></td>
+      <td style="font-family:var(--mono)">${(p.utilization||0).toFixed(0)}%</td>
+      <td><button class="icon-btn" onclick='openPlan(${JSON.stringify(p.id)})'>Open</button></td>`;
+    tbody.appendChild(tr);
+  });
+
+  drawCharts(list);
+}
+
+let chartLifts, chartUtil;
+function drawCharts(list){
+  const monthMap = {};
+  list.forEach(p=>{ if(p.date){ const m = p.date.slice(0,7); monthMap[m] = (monthMap[m]||0)+1; } });
+  const months = Object.keys(monthMap).sort();
+  const counts = months.map(m=>monthMap[m]);
+  const utils = list.map(p=>p.utilization||0);
+
+  if(window.Chart){
+    if(chartLifts) chartLifts.destroy();
+    if(chartUtil) chartUtil.destroy();
+    const ctx1 = document.getElementById('chartLifts').getContext('2d');
+    chartLifts = new Chart(ctx1, {type:'bar', data:{labels: months.length?months:['No data'], datasets:[{label:'Lifts per Month', data: counts.length?counts:[0], backgroundColor:'#F2A900'}]},
+      options:{plugins:{legend:{labels:{color:'#8494A1'}}, title:{display:true,text:'Lifts per Month',color:'#E7EEF3'}}, scales:{x:{ticks:{color:'#8494A1'},grid:{color:'#28353F'}},y:{ticks:{color:'#8494A1'},grid:{color:'#28353F'}}}}});
+    const ctx2 = document.getElementById('chartUtil').getContext('2d');
+    chartUtil = new Chart(ctx2, {type:'line', data:{labels: utils.map((_,i)=>'Plan '+(i+1)), datasets:[{label:'Crane Utilization %', data: utils.length?utils:[0], borderColor:'#4EA1D3', backgroundColor:'rgba(78,161,211,0.2)', fill:true}]},
+      options:{plugins:{legend:{labels:{color:'#8494A1'}}, title:{display:true,text:'Crane Utilization Trend',color:'#E7EEF3'}}, scales:{x:{ticks:{color:'#8494A1'},grid:{color:'#28353F'}},y:{ticks:{color:'#8494A1'},grid:{color:'#28353F'}}}}});
+  }
+}
+
+async function openPlan(id){
+  try{ const res = await window.storage.get('liftplans:'+id); if(res){ plan = JSON.parse(res.value); loadFormFromPlan(); switchView('newplan'); } }
+  catch(e){ alert('Could not load this plan.'); }
+}
+
+/* ---- Report ---- */
+function renderReport(){
+  sync();
+  const r = document.getElementById('reportPage');
+  const risksHtml = plan.risks.map(x=>`<tr><td>${x.hazard}</td><td>${x.likelihood}</td><td>${x.severity}</td><td>${x.likelihood*x.severity}</td><td>${x.control}</td></tr>`).join('');
+  const flagsHtml = (plan._flags||[]).map(f=>`<tr><td>${f.sev}</td><td>${f.text}</td></tr>`).join('') || '<tr><td colspan="2">No flags raised.</td></tr>';
+  r.innerHTML = `
+    <h1>Lift Plan Report</h1>
+    <div class="report-meta">Plan No: ${plan.planNo||'—'} | Date: ${plan.date||'—'} | Prepared By: ${plan.preparedBy||'—'}</div>
+    <h2>1. General Information</h2>
+    <table><tr><th>Client</th><td>${plan.client||'—'}</td><th>Project</th><td>${plan.project||'—'}</td></tr>
+    <tr><th>Location</th><td>${plan.location||'—'}</td><th>Lift Plan No.</th><td>${plan.planNo||'—'}</td></tr></table>
+    <h2>2. Load Details</h2>
+    <table><tr><th>Description</th><td>${plan.loadDesc||'—'}</td><th>Weight</th><td>${plan.loadWeight||0} t</td></tr>
+    <tr><th>Dimensions (L x W x H)</th><td>${plan.dimL||0} x ${plan.dimW||0} x ${plan.dimH||0} m</td>
+    <th>COG (X, Y, Z)</th><td>${(plan.cogX||0).toFixed(2)}, ${(plan.cogY||0).toFixed(2)}, ${(plan.cogZ||0).toFixed(2)} m ${plan.cogManual ? '(manual override)' : '— calculated by LiftPlan AI'}</td></tr></table>
+    <h2>3. Crane &amp; Capacity Check</h2>
+    <table><tr><th>Crane</th><td>${plan.craneType||'—'} ${plan.craneModel||''}</td><th>Radius</th><td>${plan.radius||0} m</td></tr>
+    <tr><th>Capacity at Radius</th><td>${plan.craneCap||0} t</td><th>Utilization</th><td>${(plan.utilization||0).toFixed(1)}% — ${plan.category||''}</td></tr></table>
+    <h2>4. Rigging Arrangement</h2>
+    <table><tr><th>Sling</th><td>${plan.slingType||'—'} (WLL ${plan.slingWLL||0}t)</td><th>Tension/Leg</th><td>${(plan._tensionPerLeg||0).toFixed(2)} t</td></tr></table>
+    <h2>5. ${plan.liftEnv === 'Offshore' ? 'Offshore Conditions' : 'Ground Conditions &amp; Site Access'}</h2>
+    ${plan.liftEnv === 'Offshore' ? `
+    <table><tr><th>Sea State</th><td>${plan.seaState||'—'}</td><th>Wave Height</th><td>${plan.waveHeight||0} m</td></tr>
+    <tr><th>Wind Speed</th><td>${plan.windSpeed||0} kn</td><th>Limit</th><td>${plan.windLimit||0} kn</td></tr></table>
+    ` : `
+    <table><tr><th>Ground Bearing Confirmed</th><td>${plan.groundBearingOk||'—'}</td><th>Underground Utilities Checked</th><td>${plan.undergroundChecked||'—'}</td></tr>
+    <tr><th>Access Route</th><td>${plan.accessRoute||'—'}</td><th>Overhead Power Lines</th><td>${plan.overheadLines||'—'}</td></tr></table>
+    `}
+    <h2>6. Risk Assessment</h2>
+    <table><thead><tr><th>Hazard</th><th>L</th><th>S</th><th>Score</th><th>Control</th></tr></thead><tbody>${risksHtml}</tbody></table>
+    <h2>7. Method Statement</h2><div>${(plan.methodStatement||'—').replace(/\\n/g,'<br>')}</div>
+    <h2>Appendix A — AI Checker Audit Log</h2>
+    <table><thead><tr><th>Severity</th><th>Flag</th></tr></thead><tbody>${flagsHtml}</tbody></table>
+    ${plan.checkerOverride ? '<p><b>Override recorded:</b> '+(plan.checkerOverrideReason||'(no reason entered)')+'</p>' : ''}
+    <h2>Sign-Off</h2>
+    <table><tr><th>Prepared By</th><td>${plan.preparedBy||'—'}</td><th>Signature</th><td>__________</td></tr>
+    <tr><th>Approved By</th><td>&nbsp;</td><th>Signature</th><td>__________</td></tr></table>
+  `;
+}
+
+/* ---- Language toggle (nav labels demo) ---- */
+const i18n = {
+  en: {'nav.dashboard':'Dashboard','nav.newplan':'New Lift Plan','nav.crane':'Crane Capacity','nav.rigging':'Rigging & Slings',
+       'nav.offshore':'Offshore / Ground Conditions','nav.risk':'Risk / JSA / Method','nav.checker':'AI Checker',
+       'nav.equipment':'Equipment Register','nav.incidents':'Incident Library','nav.report':'Report / PDF'},
+  ta: {'nav.dashboard':'டாஷ்போர்டு','nav.newplan':'புதிய லிஃப்ட் பிளான்','nav.crane':'கிரேன் திறன்','nav.rigging':'ரிக்கிங் & ஸ்லிங்',
+       'nav.offshore':'கடல்/நில நிலைமைகள்','nav.risk':'ரிஸ்க் / JSA / முறை','nav.checker':'AI சரிபார்ப்பு',
+       'nav.equipment':'உபகரண பதிவேடு','nav.incidents':'சம்பவ பதிவேடு','nav.report':'அறிக்கை / PDF'},
+  pt: {'nav.dashboard':'Painel','nav.newplan':'Novo Plano de Içamento','nav.crane':'Capacidade do Guindaste','nav.rigging':'Cintas & Lingas',
+       'nav.offshore':'Condições Offshore / Terreno','nav.risk':'Risco / JSA / Método','nav.checker':'Verificador IA',
+       'nav.equipment':'Registo de Equipamento','nav.incidents':'Biblioteca de Incidentes','nav.report':'Relatório / PDF'},
+  fr: {'nav.dashboard':'Tableau de Bord','nav.newplan':'Nouveau Plan de Levage','nav.crane':'Capacité de la Grue','nav.rigging':'Élingues & Gréement',
+       'nav.offshore':'Conditions Offshore / Terrain','nav.risk':'Risque / JSA / Méthode','nav.checker':'Vérificateur IA',
+       'nav.equipment':"Registre d'Équipement",'nav.incidents':"Bibliothèque d'Incidents",'nav.report':'Rapport / PDF'},
+  hi: {'nav.dashboard':'डैशबोर्ड','nav.newplan':'नई लिफ्ट प्लान','nav.crane':'क्रेन क्षमता','nav.rigging':'रिगिंग और स्लिंग',
+       'nav.offshore':'ऑफशोर / ग्राउंड स्थितियाँ','nav.risk':'जोखिम / JSA / विधि','nav.checker':'AI जांचकर्ता',
+       'nav.equipment':'उपकरण रजिस्टर','nav.incidents':'घटना लाइब्रेरी','nav.report':'रिपोर्ट / PDF'}
+};
+const langOrder = ['en','ta','pt','fr','hi'];
+let currentLang='en';
+function setLang(code){
+  currentLang = code;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = i18n[currentLang][el.dataset.i18n] || el.textContent; });
+}
+
+/* init */
+loadFormFromPlan();
+renderDashboard();
+</script>
+</body>
+</html>
