@@ -119,13 +119,36 @@ tr:hover td{background:var(--panel-2);}
 .flag.info .flag-badge{background:var(--info-dim);color:var(--info);}
 .flag-text{font-size:13px;}
 .eq-row{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;}
-.report-page{background:#fff;color:#111;padding:32px 36px;border-radius:4px;font-family:var(--body);max-width:800px;margin:0 auto;}
-.report-page h1{font-family:var(--display);font-size:22px;margin:0 0 4px 0;color:#111;}
-.report-page h2{font-family:var(--display);font-size:13px;text-transform:uppercase;color:#B37400;border-bottom:1px solid #ddd;padding-bottom:6px;margin:18px 0 10px 0;}
-.report-meta{font-family:var(--mono);font-size:11.5px;color:#555;margin-bottom:14px;}
-.report-page table{font-size:12px;}
-.report-page th{color:#666;border-bottom:1px solid #ccc;}
-.report-page td{border-bottom:1px solid #eee;color:#111;}
+.report-page{background:#fff;color:#1a1a1a;padding:0;border-radius:4px;font-family:'IBM Plex Sans',system-ui,sans-serif;max-width:900px;margin:0 auto;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.25);}
+.report-page *{box-sizing:border-box;}
+.rp-cover{background:#0B1117;color:#fff;padding:36px 40px 28px;position:relative;}
+.rp-cover-brand{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+.rp-cover-brand-text{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#A0AAB4;line-height:1.35;}
+.rp-cover-brand-text b{display:block;color:#fff;font-size:13px;letter-spacing:1.2px;font-weight:700;}
+.rp-cover h1{font-family:'Oswald',sans-serif;font-size:42px;font-weight:700;margin:0 0 6px;letter-spacing:1px;line-height:1;color:#fff;}
+.rp-cover .rp-underline{width:64px;height:3px;background:#F2A900;margin-bottom:14px;}
+.rp-cover .rp-subtitle{font-size:18px;color:#F2A900;font-weight:600;margin:0 0 8px;}
+.rp-cover .rp-planno{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A9AAB;margin-bottom:20px;}
+.rp-cover-art{text-align:center;margin:8px 0 24px;opacity:.95;}
+.rp-cover-meta{width:100%;border-collapse:collapse;font-size:12.5px;}
+.rp-cover-meta th{text-align:left;color:#8A9AAB;font-weight:500;padding:5px 12px 5px 0;width:150px;vertical-align:top;text-transform:uppercase;font-size:10px;letter-spacing:.6px;border:none;background:transparent;}
+.rp-cover-meta td{padding:5px 0;color:#E8EEF3;border-bottom:1px solid #1E2A35;background:transparent;}
+.rp-body{padding:28px 40px 40px;}
+.rp-sec{margin-bottom:26px;page-break-inside:avoid;}
+.rp-sec-title{font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;color:#0B1117;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #F2A900;letter-spacing:.3px;}
+.rp-sec-title span{color:#F2A900;margin-right:6px;}
+.rp-sec p{font-size:13px;line-height:1.55;color:#333;margin:0 0 12px;}
+.rp-table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0 14px;}
+.rp-table th{background:#F3F5F7;color:#555;text-align:left;padding:8px 10px;font-weight:600;border:1px solid #E0E4E8;font-size:11px;text-transform:uppercase;letter-spacing:.3px;}
+.rp-table td{padding:7px 10px;border:1px solid #E8ECF0;color:#1a1a1a;vertical-align:top;}
+.rp-table tr:nth-child(even) td{background:#FAFBFC;}
+.rp-formula{font-family:'IBM Plex Mono',monospace;font-size:12px;background:#F8F6F0;border-left:3px solid #F2A900;padding:10px 14px;margin:8px 0 12px;color:#333;}
+.rp-note{font-size:11.5px;color:#666;line-height:1.5;margin:6px 0 12px;}
+.rp-list{margin:6px 0 12px;padding-left:18px;font-size:13px;color:#333;line-height:1.55;}
+.rp-list li{margin-bottom:4px;}
+.rp-sketch{max-width:100%;border:1px solid #ddd;border-radius:4px;margin:10px 0;}
+.rp-footer-note{margin-top:28px;padding:12px 14px;border:1px solid #ddd;border-radius:4px;font-size:10.5px;color:#555;line-height:1.5;background:#FAFAFA;}
+.rp-subh{font-size:13px;font-weight:600;color:#333;margin:14px 0 6px;}
 .chart-wrap{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;height:220px;}
 .check-cat{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;border-radius:6px;margin-bottom:7px;background:var(--panel-2);border-left:4px solid var(--border);}
 .check-cat.PASS{border-left-color:var(--safe);}
@@ -156,11 +179,17 @@ tr:hover td{background:var(--panel-2);}
 .upgrade-banner{background:linear-gradient(90deg,var(--accent-dim),#3A2A0A);border:1px solid var(--accent);border-radius:8px;padding:14px 16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
 .upgrade-banner p{margin:0;font-size:13px;}
 @media print{
-  .sidebar,.topbar,.btn-row,.no-print,.toast,.modal-overlay{display:none !important;}
-  body{background:#fff;}
-  .view{display:none !important;}
-  .view.active{display:block !important;padding:0;}
-  .report-page{box-shadow:none;max-width:100%;}
+  .sidebar,.topbar,.btn-row,.no-print,.toast,.modal-overlay,#app > aside{display:none !important;}
+  body{background:#fff !important;margin:0;padding:0;}
+  #app{display:block !important;}
+  .content{display:block !important;}
+  .view{display:none !important;padding:0 !important;}
+  .view.active{display:block !important;padding:0 !important;}
+  .report-page{box-shadow:none !important;max-width:100% !important;border-radius:0 !important;}
+  .rp-cover{print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+  .rp-table th{print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+  .rp-sec{page-break-inside:avoid;}
+  .rp-cover{page-break-after:always;}
 }
 @media (max-width:780px){
   .sidebar{width:100%;position:relative;border-right:none;border-bottom:1px solid var(--border);}
@@ -1747,64 +1776,348 @@ function drawCharts(list){
 function renderReport(){
   sync();
   const r = document.getElementById('reportPage');
-  const risksHtml = (plan.risks||[]).map(x=>{const s=x.likelihood*x.severity; return `<tr><td>${x.hazard||''}</td><td>${x.likelihood}</td><td>${x.severity}</td><td>${s} — ${riskBand(s).label}</td><td>${x.control||''}</td></tr>`;}).join('') || '<tr><td colspan="5">No risks logged.</td></tr>';
-  const flagsHtml = (plan._flags||[]).map(f=>`<tr><td>${f.cat}</td><td>${f.sev}</td><td>${f.text}</td></tr>`).join('') || '<tr><td colspan="3">No flags raised.</td></tr>';
-  const eqHtml = (plan.equipment||[]).map(e=>{const st=eqStatus(e.certExpiry); return `<tr><td>${e.type}</td><td>${e.size||'—'}</td><td>${e.wll}t</td><td>${e.certNo||'—'}</td><td>${e.certExpiry||'—'}</td><td>${st.label}</td></tr>`;}).join('') || '<tr><td colspan="6">No equipment logged.</td></tr>';
+  if(!r) return;
+
+  const esc = (s) => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const n = (v,d=2) => (parseFloat(v)||0).toFixed(d);
+  const load = plan.loadWeight||0;
+  const util = plan.utilization||0;
+  const angle = plan.angleDeg;
+  const tension = plan.tensionPerLeg||0;
+  const reqWLL = plan.requiredWLL||0;
+  const stdS = plan.stdSlingWLL||plan.slingWLL||0;
+  const stdH = plan.stdShackleWLL||plan.shackleWLL||0;
+  const stdM = plan.stdMasterWLL||plan.masterLinkWLL||0;
+  const daf = plan.daf || (plan.liftEnv==='Offshore' ? (plan.daf||1.1) : 1.0);
+  const dynLoad = plan.dynamicLoad || (load * (daf||1));
+  const totalLift = plan.totalLiftWeight || (load + (plan.rigWeight||0) + (plan.hookWeight||0));
+  const cap = plan.craneCap||0;
+  const gbp = plan.gbp||0;
+  const soil = plan.soilCap||0;
+  // kPa conversion: 1 t/m² ≈ 9.81 kPa
+  const gbpKpa = gbp * 9.81;
+  const soilKpa = soil * 9.81;
+  const gbpMargin = soil > 0 && gbp > 0 ? ((soil - gbp) / soil * 100) : null;
+  const slingUtil = (stdS > 0 && tension > 0) ? (tension / stdS * 100) : 0;
+
+  const risks = plan.risks||[];
+  const risksHtml = risks.length ? risks.map(x=>{
+    const s = (x.likelihood||1)*(x.severity||1);
+    const band = riskBand(s).label;
+    // residual: if control present, reduce likelihood by ~2 (min 1) as planning estimate
+    const rL = x.control ? Math.max(1, (x.likelihood||1)-2) : (x.likelihood||1);
+    const rS = x.severity||1;
+    const rScore = rL * rS;
+    return `<tr>
+      <td>${esc(x.hazard)}</td>
+      <td>${x.likelihood||''}</td><td>${x.severity||''}</td><td><b>${s}</b></td>
+      <td>${esc(x.control||'—')}</td>
+      <td>${rL}</td><td>${rS}</td><td><b>${rScore}</b></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="8">No risks logged.</td></tr>';
+
+  const eq = plan.equipment||[];
+  const eqHtml = eq.length ? eq.map(e=>{
+    const st = eqStatus(e.certExpiry);
+    return `<tr><td>${esc(e.type)}</td><td>${esc(e.size||'—')}</td><td>${e.wll||0} t</td><td>${esc(e.certNo||'—')}</td><td>${esc(e.certExpiry||'—')}</td><td>${st.label}</td></tr>`;
+  }).join('') : '<tr><td colspan="6">No equipment logged.</td></tr>';
+
+  // Critical risks bullets from high scores / checker flags
+  const criticalBullets = [];
+  risks.filter(x=>(x.likelihood||1)*(x.severity||1)>=10).forEach(x=>criticalBullets.push(esc(x.hazard||'High risk')));
+  (plan._flags||[]).filter(f=>f.sev==='blocking').slice(0,4).forEach(f=>criticalBullets.push(esc(f.text)));
+  if(!criticalBullets.length){
+    criticalBullets.push('Load overload beyond crane rated capacity at working radius');
+    criticalBullets.push('Rigging failure due to incorrect sling angle or WLL selection');
+    criticalBullets.push('Ground/foundation bearing failure under crane or outrigger loads');
+    if(plan.liftEnv==='Offshore') criticalBullets.push('Loss of control during dynamic/weather-sensitive lift phases');
+  }
+
+  const scopeText = plan.workDescription
+    ? esc(plan.workDescription)
+    : `Lift of ${esc(plan.loadDesc||'load')} (${n(load,1)} t) at ${esc(plan.location||'site')} using ${esc(plan.craneType||'crane')}${plan.craneModel?(' — '+esc(plan.craneModel)):''}.`;
+
+  const methodRaw = (plan.methodStatement||'').trim();
+  let methodHtml = '';
+  if(methodRaw){
+    const lines = methodRaw.split(/\n+/).map(l=>l.trim()).filter(Boolean);
+    methodHtml = '<ol class="rp-list">' + lines.map(l=>'<li>'+esc(l.replace(/^\d+[\.\)]\s*/,''))+'</li>').join('') + '</ol>';
+  } else {
+    methodHtml = `<ol class="rp-list">
+      <li>Confirm current LOLER thorough examination certificates for crane(s), rigging, and lifting accessories.</li>
+      <li>Conduct toolbox talk with all lift personnel; confirm roles.</li>
+      <li>Establish exclusion zone and barrier the lift area; brief banksman and signaller.</li>
+      <li>Position crane(s) on verified ground bearing / matting; set outriggers (if mobile) to full extension.</li>
+      <li>Rig load per configuration; attach taglines; conduct visual rigging inspection.</li>
+      <li>Perform trial lift: raise load approximately 300 mm, hold to verify rigging geometry, crane response, and brake holding.</li>
+      <li>Confirm sling angles, load indicator readings, and COG behaviour match plan before proceeding.</li>
+      <li>Execute main lift at working radius ${n(plan.radius,1)} m.</li>
+      <li>Travel/luff/slew load along planned path, maintaining radius and load chart compliance throughout.</li>
+      <li>Position load over set point; lower under controlled taglines to final bearing/foundation.</li>
+      <li>Confirm secure landing, release rigging tension gradually, and inspect for damage.</li>
+      <li>De-rig, remove accessories, and return crane to travel/stow configuration.</li>
+      <li>Conduct post-lift debrief and close out permit-to-work documentation.</li>
+    </ol>`;
+  }
+
+  const envBlock = plan.liftEnv === 'Offshore' ? `
+    <table class="rp-table">
+      <tr><th>Sea State</th><td>${esc(plan.seaState||'—')}</td><th>Wave Height</th><td>${n(plan.waveHeight,1)} m</td></tr>
+      <tr><th>Wind Speed</th><td>${n(plan.windSpeed,1)} kn</td><th>Wind Limit</th><td>${n(plan.windLimit,1)} kn</td></tr>
+      <tr><th>DAF</th><td>${n(daf,3)}</td><th>Dynamic Lift Load</th><td><b>${n(dynLoad,2)} t</b></td></tr>
+      <tr><th>Weather Result</th><td colspan="3"><b>${esc(plan.weatherResult||'—')}</b></td></tr>
+    </table>
+  ` : `
+    <table class="rp-table">
+      <tr><th>Ground Bearing Confirmed</th><td>${esc(plan.groundBearingOk||'—')}</td><th>Utilities Checked</th><td>${esc(plan.undergroundChecked||'—')}</td></tr>
+      <tr><th>Access Route</th><td>${esc(plan.accessRoute||'—')}</td><th>Overhead Lines</th><td>${esc(plan.overheadLines||'—')}</td></tr>
+      <tr><th>Pad Size (L × W)</th><td>${n(plan.padL,2)} × ${n(plan.padW,2)} m</td><th>Outrigger Reaction</th><td>${n(plan.outriggerLoad,2)} t</td></tr>
+      <tr><th>GBP</th><td>${n(gbp,2)} t/m² (${n(gbpKpa,1)} kPa)</td><th>Soil Capacity</th><td>${n(soil,2)} t/m² (${n(soilKpa,1)} kPa)</td></tr>
+      <tr><th>Margin</th><td colspan="3">${gbpMargin!==null ? (gbpMargin>=0 ? n(gbpMargin,1)+'% below allowable' : n(Math.abs(gbpMargin),1)+'% ABOVE allowable — FAIL') : '—'}</td></tr>
+    </table>
+  `;
+
+  const sketchBlock = plan.rigSketch
+    ? `<div class="rp-subh">Rigging Sketch / Diagram</div><img class="rp-sketch" src="${plan.rigSketch}" alt="Rigging sketch">`
+    : '';
+
+  const apName = plan.preparedBy || '—';
+  const planTitle = plan.project || plan.loadDesc || plan.planNo || 'Lift Plan';
 
   r.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-      <div>
-        <h1>JMR LiftPlan Pro — Lift Plan Report</h1>
-        <div style="font-size:12px;color:#666;">JMR Lifting Solutions &amp; Engineering • Prepared with JMR LiftPlan Pro</div>
-      </div>
-      <div style="text-align:right;font-family:monospace;font-size:11px;color:#555;">
-        ${plan.planNo||'—'}<br>${plan.date||'—'}
-      </div>
+  <div class="rp-cover">
+    <div class="rp-cover-brand">
+      <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+        <rect width="40" height="40" rx="6" fill="#0a0a0b"/>
+        <path d="M20 8 L34 30 L6 30 Z" stroke="#E8EEF3" stroke-width="2" stroke-linejoin="round" fill="none"/>
+        <line x1="12" y1="30" x2="28" y2="30" stroke="#F2A900" stroke-width="2"/>
+        <line x1="20" y1="30" x2="20" y2="34" stroke="#F2A900" stroke-width="2"/>
+        <circle cx="20" cy="36" r="1.6" fill="#F2A900"/>
+      </svg>
+      <div class="rp-cover-brand-text"><b>JMR LIFTING SOLUTIONS</b>Certified Heavy Lift Engineering</div>
     </div>
-    <div class="report-meta">Prepared By: ${plan.preparedBy||'—'} | Environment: ${plan.liftEnv} | Status: ${(plan.status||'draft').toUpperCase()} | Overall Check: ${plan.overallResult||'Not run'}</div>
-    <h2>1. General Information</h2>
-    <table><tr><th>Client</th><td>${plan.client||'—'}</td><th>Project</th><td>${plan.project||'—'}</td></tr>
-    <tr><th>Location</th><td>${plan.location||'—'}</td><th>Lift Plan No.</th><td>${plan.planNo||'—'}</td></tr>
-    <tr><th>Work Description</th><td colspan="3">${plan.workDescription||'—'}</td></tr></table>
-    <h2>2. Load Details</h2>
-    <table><tr><th>Description</th><td>${plan.loadDesc||'—'}</td><th>Weight</th><td>${plan.loadWeight||0} t</td></tr>
-    <tr><th>Dimensions (L×W×H)</th><td>${(plan.dimL||0).toFixed(2)} × ${(plan.dimW||0).toFixed(2)} × ${(plan.dimH||0).toFixed(2)} m</td>
-    <th>COG (X,Y,Z)</th><td>${(plan.cogX||0).toFixed(2)}, ${(plan.cogY||0).toFixed(2)}, ${(plan.cogZ||0).toFixed(2)} m ${plan.cogManual?'(manual)':'(calc)'}</td></tr></table>
-    <h2>3. Crane &amp; Capacity — Category: ${plan.category||'—'}</h2>
-    <table><tr><th>Crane</th><td>${plan.craneType||'—'} ${plan.craneModel||''}</td><th>Radius</th><td>${plan.radius||0} m</td></tr>
-    <tr><th>Total Lift Weight</th><td>${(plan.totalLiftWeight||0).toFixed(2)} t</td><th>Capacity at Radius</th><td>${plan.craneCap||0} t</td></tr>
-    <tr><th>Utilisation</th><td>${(plan.utilization||0).toFixed(1)}%</td><th>Remaining</th><td>${(plan.remainingCapacity||0).toFixed(2)} t</td></tr></table>
-    <h2>4. Rigging Arrangement</h2>
-    <table><tr><th>Sling Type</th><td>${plan.slingType||'—'}</td><th>Sling Angle</th><td>${plan.angleDeg!==undefined?plan.angleDeg.toFixed(1)+'°':'—'}</td></tr>
-    <tr><th>Tension / Leg</th><td>${(plan.tensionPerLeg||0).toFixed(2)} t</td><th>Required WLL / Leg</th><td>${(plan.requiredWLL||0).toFixed(2)} t</td></tr>
-    <tr><th>Recommended Standard Sling WLL</th><td>${plan.stdSlingWLL||plan.slingWLL||0} t</td><th>Recommended Shackle WLL</th><td>${plan.stdShackleWLL||plan.shackleWLL||0} t</td></tr>
-    <tr><th>Recommended Master Link WLL</th><td>${plan.stdMasterWLL||plan.masterLinkWLL||0} t</td><th>Notes</th><td>${plan.shackle||'—'} / ${plan.masterLink||'—'}</td></tr></table>
-    ${plan.rigSketch ? '<p><b>Rigging Sketch / Diagram</b></p><img src="'+plan.rigSketch+'" style="max-width:100%;border:1px solid #ccc;border-radius:4px;" alt="Rigging sketch">' : ''}
-    <h2>5. ${plan.liftEnv === 'Offshore' ? 'Offshore Conditions' : 'Ground Conditions'}</h2>
-    ${plan.liftEnv === 'Offshore' ? `
-    <table><tr><th>Sea State</th><td>${plan.seaState||'—'}</td><th>Wave Height</th><td>${plan.waveHeight||0} m</td></tr>
-    <tr><th>Wind</th><td>${plan.windSpeed||0} kn / limit ${plan.windLimit||0} kn</td><th>Dynamic Load</th><td>${(plan.dynamicLoad||0).toFixed(2)} t</td></tr>
-    <tr><th>Weather Result</th><td colspan="3">${plan.weatherResult||'—'}</td></tr></table>
-    ` : `
-    <table><tr><th>Ground Bearing Confirmed</th><td>${plan.groundBearingOk||'—'}</td><th>Utilities Checked</th><td>${plan.undergroundChecked||'—'}</td></tr>
-    <tr><th>Access Route</th><td>${plan.accessRoute||'—'}</td><th>Overhead Lines</th><td>${plan.overheadLines||'—'}</td></tr>
-    <tr><th>Pad Size (L×W)</th><td>${(plan.padL||0).toFixed(2)} × ${(plan.padW||0).toFixed(2)} m</td><th>Outrigger Reaction</th><td>${(plan.outriggerLoad||0).toFixed(2)} t</td></tr>
-    <tr><th>Ground Bearing Pressure</th><td>${(plan.gbp||0).toFixed(2)} t/m²</td><th>Soil Capacity</th><td>${(plan.soilCap||0).toFixed(2)} t/m² ${plan.gbpOk===false?'— FAIL':(plan.gbpOk===true?'— OK':'')}</td></tr></table>
-    `}
-    <h2>6. Risk Assessment</h2>
-    <table><thead><tr><th>Hazard</th><th>L</th><th>S</th><th>Score</th><th>Control</th></tr></thead><tbody>${risksHtml}</tbody></table>
-    <h2>7. Method Statement</h2><div style="white-space:pre-wrap;border:1px solid #eee;padding:12px;border-radius:4px;background:#fafafa;min-height:60px;">${(plan.methodStatement||'—').replace(/</g,'&lt;')}</div>
-    <h2>8. Equipment Register</h2>
-    <table><thead><tr><th>Type</th><th>Size</th><th>WLL</th><th>Cert No.</th><th>Expiry</th><th>Status</th></tr></thead><tbody>${eqHtml}</tbody></table>
-    <h2>9. AI Check Summary — ${plan.overallResult||'Not run'}</h2>
-    <table><thead><tr><th>Category</th><th>Severity</th><th>Detail</th></tr></thead><tbody>${flagsHtml}</tbody></table>
-    ${plan.checkerOverride ? '<p><b>Override recorded:</b> '+(plan.checkerOverrideReason||'(no reason)')+'</p>' : ''}
-    <h2>10. Approval</h2>
-    <table><tr><th>Prepared By</th><td>${plan.preparedBy||'—'}</td><th>Signature</th><td>__________</td></tr>
-    <tr><th>Reviewed / Approved By</th><td>&nbsp;</td><th>Signature / Date</th><td>__________</td></tr></table>
-    <div style="margin-top:22px;padding:12px 14px;border:1px solid #ccc;border-radius:4px;font-size:10.5px;color:#555;line-height:1.5;">
-      <b>Important Notice:</b> JMR LiftPlan Pro is a preparation aid. All calculations and recommendations must be independently verified and formally approved by a competent, suitably certified/chartered engineer before any lifting operation. JMR Lifting Solutions &amp; Engineering and the software authors accept no liability for lifts performed without such independent professional approval.
+    <h1>LIFT PLAN</h1>
+    <div class="rp-underline"></div>
+    <div class="rp-subtitle">${esc(planTitle)}</div>
+    <div class="rp-planno">Plan number: ${esc(plan.planNo||'—')}</div>
+    <div class="rp-cover-art">
+      <svg width="200" height="90" viewBox="0 0 200 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="70" y="55" width="50" height="22" stroke="#F2A900" stroke-width="1.5" fill="none"/>
+        <rect x="85" y="48" width="20" height="7" stroke="#F2A900" stroke-width="1.5" fill="none"/>
+        <line x1="95" y1="48" x2="95" y2="12" stroke="#F2A900" stroke-width="1.5"/>
+        <line x1="95" y1="12" x2="160" y2="70" stroke="#F2A900" stroke-width="1.5"/>
+        <line x1="160" y1="70" x2="160" y2="82" stroke="#F2A900" stroke-width="1.5"/>
+        <circle cx="160" cy="84" r="2" fill="#F2A900"/>
+        <line x1="95" y1="20" x2="130" y2="55" stroke="#F2A900" stroke-width="1" stroke-dasharray="3 2"/>
+      </svg>
     </div>
+    <table class="rp-cover-meta">
+      <tr><th>Client</th><td>${esc(plan.client||'—')}</td></tr>
+      <tr><th>Location</th><td>${esc(plan.location||'—')}</td></tr>
+      <tr><th>Revision</th><td>Rev 0</td></tr>
+      <tr><th>Date</th><td>${esc(plan.date||'—')}</td></tr>
+      <tr><th>Prepared By</th><td>${esc(apName)}${apName!=='—'?', LEEA Certified Appointed Person':''}</td></tr>
+      <tr><th>Reviewed By</th><td>JMR Lifting Engineering</td></tr>
+      <tr><th>Standards</th><td>BS 7121 · LOLER 1998 · ASME B30</td></tr>
+      <tr><th>Environment</th><td>${esc(plan.liftEnv||'—')} · Category: ${esc(plan.category||'—')} · Check: ${esc(plan.overallResult||'Not run')}</td></tr>
+    </table>
+  </div>
+
+  <div class="rp-body">
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>01</span> Executive Summary &amp; Scope</div>
+      <p>${scopeText}</p>
+      <div class="rp-subh">Key Parameters</div>
+      <table class="rp-table">
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Load weight (t)</td><td><b>${n(load,1)} t</b></td></tr>
+        <tr><td>Dimensions (L × W × H)</td><td>${n(plan.dimL,2)} m × ${n(plan.dimW,2)} m × ${n(plan.dimH,2)} m</td></tr>
+        <tr><td>Lift radius (m)</td><td>${n(plan.radius,1)} m</td></tr>
+        <tr><td>Boom length (m)</td><td>${n(plan.boom,1)} m</td></tr>
+        <tr><td>Location</td><td>${esc(plan.location||'—')}</td></tr>
+        <tr><td>Total lift weight (incl. rigging)</td><td>${n(totalLift,2)} t</td></tr>
+      </table>
+      <div class="rp-subh">Critical Risks</div>
+      <ul class="rp-list">${criticalBullets.map(b=>'<li>'+b+'</li>').join('')}</ul>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>02</span> Load Data, Centre of Gravity &amp; Dimensions</div>
+      <p>${esc(plan.loadDesc||'Load as specified in plan.')}</p>
+      <div class="rp-subh">Weight Breakdown</div>
+      <table class="rp-table">
+        <tr><th>Component</th><th>Weight</th></tr>
+        <tr><td>Load</td><td>${n(load,2)} t</td></tr>
+        <tr><td>Rigging</td><td>${n(plan.rigWeight,2)} t</td></tr>
+        <tr><td>Hook block</td><td>${n(plan.hookWeight,2)} t</td></tr>
+        <tr><td><b>Total lift weight</b></td><td><b>${n(totalLift,2)} t</b></td></tr>
+      </table>
+      <div class="rp-subh">Centre of Gravity</div>
+      <table class="rp-table">
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>X-axis</td><td>${n(plan.cogX,2)} m ${plan.cogManual?'(manual)':'(calculated)'}</td></tr>
+        <tr><td>Y-axis</td><td>${n(plan.cogY,2)} m</td></tr>
+        <tr><td>Z-axis</td><td>${n(plan.cogZ,2)} m</td></tr>
+      </table>
+      <div class="rp-subh">Lift Points</div>
+      <p>${plan.liftPoints||'—'} no. · Type: ${esc(plan.liftPointType||'—')}</p>
+      <div class="rp-subh">Dimensional Outline</div>
+      <p class="rp-note">Simplified load outline (not to scale): ${n(plan.dimL,2)} m × ${n(plan.dimW,2)} m × ${n(plan.dimH,2)} m · COG marked from plan data.</p>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>03</span> Crane Selection &amp; Configuration</div>
+      <div class="rp-subh">Selected Crane: ${esc(plan.craneType||'—')}${plan.craneModel?(' — '+esc(plan.craneModel)):''}</div>
+      <table class="rp-table">
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Crane type</td><td>${esc(plan.craneType||'—')}</td></tr>
+        <tr><td>Make &amp; model</td><td>${esc(plan.craneModel||'—')}</td></tr>
+        <tr><td>Boom length</td><td>${n(plan.boom,1)} m</td></tr>
+        <tr><td>Working radius</td><td>${n(plan.radius,1)} m</td></tr>
+        <tr><td>Capacity at working radius</td><td><b>${n(cap,1)} t</b></td></tr>
+      </table>
+      <div class="rp-subh">Utilization Calculation</div>
+      <div class="rp-formula">Total lift weight ${n(totalLift,2)} t ÷ Capacity ${n(cap,1)} t = <b>${n(util,1)}%</b> · Category: <b>${esc(plan.category||'—')}</b></div>
+      <p class="rp-note">Utilization result: <b>${n(util,1)}%</b> ${util<=75?'(within 75% routine threshold)':util<=85?'(within 85% safe working threshold — engineered lift)':'(exceeds 85% — critical / requires special assessment)'}.</p>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>04</span> Load Chart &amp; Utilization Calculation</div>
+      <table class="rp-table">
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Working radius (point)</td><td>${n(plan.radius,1)} m</td></tr>
+        <tr><td>Capacity at radius</td><td>${n(cap,1)} t</td></tr>
+        <tr><td>Load weight</td><td>${n(load,2)} t</td></tr>
+        <tr><td>DAF applied</td><td>${n(daf,3)}</td></tr>
+        <tr><td>Dynamic / design lift load</td><td>${n(dynLoad,2)} t</td></tr>
+        <tr><td>Utilization</td><td><b>${n(util,1)}%</b></td></tr>
+      </table>
+      ${plan.liftEnv==='Offshore'?`<div class="rp-formula">Dynamic load = Load × DAF = ${n(load,2)} × ${n(daf,3)} = ${n(dynLoad,2)} t</div>`:''}
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>05</span> Rigging Configuration</div>
+      <table class="rp-table">
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Sling type</td><td>${esc(plan.slingType||'—')}</td></tr>
+        <tr><td>Sling angle</td><td>${angle!==undefined?n(angle,1)+'°':'—'}</td></tr>
+        <tr><td>Number of legs</td><td>${plan.legs||'—'}</td></tr>
+        <tr><td>Required WLL per leg</td><td>${n(reqWLL,2)} t</td></tr>
+        <tr><td>Recommended standard sling WLL</td><td><b>${n(stdS,2)} t</b></td></tr>
+        <tr><td>Recommended shackle WLL</td><td><b>${n(stdH,2)} t</b></td></tr>
+        <tr><td>Recommended master link WLL</td><td><b>${n(stdM,2)} t</b></td></tr>
+        <tr><td>Shackle note</td><td>${esc(plan.shackle||'—')}</td></tr>
+        <tr><td>Master link note</td><td>${esc(plan.masterLink||'—')}</td></tr>
+      </table>
+      <div class="rp-subh">Rigging Schematic (Summary)</div>
+      <table class="rp-table">
+        <tr><th>Component</th><th>Specification</th></tr>
+        <tr><td>Sling legs</td><td>${plan.legs||'—'} × ${esc(plan.slingType||'sling')} · std WLL ${n(stdS,2)} t</td></tr>
+        <tr><td>Shackles</td><td>${esc(plan.shackle||'—')} · std WLL ${n(stdH,2)} t</td></tr>
+        <tr><td>Master link / spreader</td><td>${esc(plan.masterLink||'—')} · std WLL ${n(stdM,2)} t</td></tr>
+        <tr><td>Sling angle from horizontal</td><td>${angle!==undefined?n(angle,1)+'°':'—'} (minimum safe angle 60° unless noted)</td></tr>
+      </table>
+      ${sketchBlock}
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>06</span> Rigging Load Calculations</div>
+      <div class="rp-subh">Individual Sling Load</div>
+      <div class="rp-formula">Sling load = (Load × DAF) ÷ (n × sin θ)<br>
+      ${angle!==undefined
+        ? `(${n(load,2)} × ${n(daf,2)}) ÷ (${plan.legs||2} × sin ${n(angle,1)}°) = <b>${n(tension,2)} t</b> per leg → select <b>${n(stdS,2)} t</b> standard WLL`
+        : 'Enter sling length and centre distance to calculate.'}</div>
+      <table class="rp-table">
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Calculated sling load</td><td>${n(tension,2)} t</td></tr>
+        <tr><td>Selected / recommended sling WLL</td><td>${n(stdS,2)} t</td></tr>
+        <tr><td>Sling utilization</td><td>${n(slingUtil,1)}%</td></tr>
+        <tr><td>Sling safety factor (design)</td><td>5:1 minimum (LEEA COPSULE)</td></tr>
+        <tr><td>Shackle safety factor (design)</td><td>4:1 minimum</td></tr>
+      </table>
+      <p class="rp-note">All wire rope slings are selected to a minimum design factor of 5:1 against minimum breaking load, in accordance with LEEA COPSULE guidance. All shackles are selected to a minimum design factor of 4:1. WLL values must be marked and certificated per item.</p>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>07</span> Ground Bearing &amp; Site Layout</div>
+      ${envBlock}
+      <p class="rp-note">Ground bearing pressure uses pad area and outrigger reaction from the plan. Verify against site geotechnical data before lift authorization. Site layout schematic: use attached drawings / method statement exclusion zone.</p>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>08</span> Risk Assessment (BS 7121 Format)</div>
+      <p class="rp-note">Risk scoring uses Likelihood (L) × Severity (S), each rated 1–5. Residual score after controls is shown in the right-hand columns.</p>
+      <table class="rp-table">
+        <thead><tr>
+          <th>Hazard</th><th>L</th><th>S</th><th>Score</th><th>Controls</th><th>L</th><th>S</th><th>Residual</th>
+        </tr></thead>
+        <tbody>${risksHtml}</tbody>
+      </table>
+      <p class="rp-note">Risk score key: 1–6 Low · 7–12 Medium · 13–25 High — all residual scores should be Low or Medium with documented controls before lift authorization.</p>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>09</span> Method Statement</div>
+      ${methodHtml}
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>10</span> Roles &amp; Responsibilities</div>
+      <table class="rp-table">
+        <tr><th>Role</th><th>Assignment</th></tr>
+        <tr><td>Appointed Person</td><td>${esc(apName)} — overall lift planning responsibility</td></tr>
+        <tr><td>Lift Supervisor</td><td>[Assigned at mobilization — LEEA/CPCS certified]</td></tr>
+        <tr><td>Crane Operator(s)</td><td>[Certified operator(s), current CPCS/NPORS or equivalent]</td></tr>
+        <tr><td>Slinger / Signaller</td><td>[Certified slinger/signaller per LEEA/CPCS]</td></tr>
+        <tr><td>Banksman</td><td>[Certified banksman — exclusion zone and ground personnel]</td></tr>
+        <tr><td>Reviewed by</td><td>JMR Lifting Engineering</td></tr>
+      </table>
+      <p class="rp-note">Contact: JMR Lifting Solutions — contact@jmrlifting.com</p>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>11</span> Equipment Register</div>
+      <table class="rp-table">
+        <thead><tr><th>Type</th><th>Size</th><th>WLL</th><th>Cert No.</th><th>Expiry</th><th>Status</th></tr></thead>
+        <tbody>${eqHtml}</tbody>
+      </table>
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>12</span> AI Check Summary — ${esc(plan.overallResult||'Not run')}</div>
+      <table class="rp-table">
+        <thead><tr><th>Category</th><th>Severity</th><th>Detail</th></tr></thead>
+        <tbody>${(plan._flags||[]).length ? (plan._flags||[]).map(f=>`<tr><td>${esc(f.cat)}</td><td>${esc(f.sev)}</td><td>${esc(f.text)}</td></tr>`).join('') : '<tr><td colspan="3">No flags raised. Plan ready for engineering review.</td></tr>'}</tbody>
+      </table>
+      ${plan.checkerOverride ? `<p class="rp-note"><b>Override recorded:</b> ${esc(plan.checkerOverrideReason||'(no reason)')}</p>` : ''}
+    </div>
+
+    <div class="rp-sec">
+      <div class="rp-sec-title"><span>13</span> Approvals &amp; References</div>
+      <div class="rp-subh">Signature Block</div>
+      <table class="rp-table">
+        <tr><th>Role</th><th>Name</th><th>Signature / Date</th></tr>
+        <tr><td>Appointed Person</td><td>${esc(apName)}</td><td></td></tr>
+        <tr><td>Client Representative</td><td>${esc(plan.client||'—')}</td><td></td></tr>
+        <tr><td>HSE Representative</td><td></td><td></td></tr>
+        <tr><td>Client Project Manager</td><td></td><td></td></tr>
+      </table>
+      <div class="rp-subh">References</div>
+      <ul class="rp-list">
+        <li>BS 7121-1:2016 — Code of practice for the safe use of cranes</li>
+        <li>LOLER 1998 — Lifting Operations and Lifting Equipment Regulations (UK)</li>
+        <li>ASME B30.5 — Mobile and Locomotive Cranes</li>
+        <li>LEEA COPSULE — Code of Practice for the Safe Use of Lifting Equipment</li>
+        <li>Crane manufacturer load chart (referenced Sections 03/04)</li>
+      </ul>
+    </div>
+
+    <div class="rp-footer-note">
+      <b>Important Notice:</b> This lift plan is a preparation aid generated by JMR LiftPlan Pro. All calculations and recommendations must be independently verified and formally approved by a competent, suitably certified/chartered engineer (Appointed Person) before any lifting operation. JMR Lifting Solutions &amp; Engineering and the software authors accept no liability for lifts performed without such independent professional approval.<br><br>
+      JMR Lifting Solutions — contact@jmrlifting.com · Standards: BS 7121 · LOLER 1998 · ASME B30
+    </div>
+  </div>
   `;
 }
 
